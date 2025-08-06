@@ -1,5 +1,5 @@
 
-const API_ENDPOINT = "https://din-vercel-url.vercel.app/api/generate";
+const API_ENDPOINT = "https://produkt-tekst-minizoo.vercel.app/api/generate";
 
 async function readFiles(fileList) {
   const contents = [];

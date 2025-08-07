@@ -1,36 +1,19 @@
-
 export default async function handler(req, res) {
-  const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-  const { texts, extraNote } = await req.json();
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Only POST requests are allowed' });
+  }
 
-  const prompt = `
-Du er ekspert i produkttekster til webshop.
-Følg disse regler:
-${texts.rules}
+  try {
+    const { prompts = [], data = [] } = req.body;
 
-Brug disse links/data (brug hvert link max én gang, fordel dem jævnt):
-${texts.links}
+    const promptText = prompts.map(p => p.content).join('\n\n');
+    const dataText = data.map(d => d.content).join('\n\n');
 
-Ekstra bemærkninger: ${extraNote || "Ingen."}
+    const finalText = `📝 GENERERET PRODUKTTEKST\n--------------------------\nRegler:\n${promptText}\n\nData / Links:\n${dataText}`;
 
-Lav en produkttekst udfra ovenstående.
-`.trim();
-
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      model: "gpt-4",
-      messages: [
-        { role: "system", content: "Du er ekspert i produktbeskrivelser." },
-        { role: "user", content: prompt },
-      ],
-    }),
-  });
-
-  const data = await response.json();
-  res.status(200).json(data);
+    return res.status(200).json({ text: finalText });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Internal Server Error' });
+  }
 }

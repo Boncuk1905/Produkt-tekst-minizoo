@@ -1,19 +1,16 @@
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Only POST requests are allowed' });
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Kun POST tilladt" });
   }
 
-  try {
-    const { prompts = [], data = [] } = req.body;
+  const { rules, links, product } = req.body;
 
-    const promptText = prompts.map(p => p.content).join('\n\n');
-    const dataText = data.map(d => d.content).join('\n\n');
-
-    const finalText = `📝 GENERERET PRODUKTTEKST\n--------------------------\nRegler:\n${promptText}\n\nData / Links:\n${dataText}`;
-
-    return res.status(200).json({ text: finalText });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ error: 'Internal Server Error' });
+  if (!rules || !links || !product) {
+    return res.status(400).json({ error: "Manglende felter" });
   }
+
+  // Midlertidigt dummy-output:
+  return res.status(200).json({
+    result: `Regler: ${rules.length} tegn, Links: ${links.length} tegn, Produkt: ${product.length} tegn`
+  });
 }
